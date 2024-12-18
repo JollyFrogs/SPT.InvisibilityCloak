@@ -19,8 +19,8 @@ using static BotMemoryClass;
 
 namespace InvisibilityCloak
 { 
-    [BepInPlugin("com.Invisibility.Cloak", "InvisibilityCloak", "3.9.3.2")]
-    class Plugin : BaseUnityPlugin
+    [BepInPlugin("com.Invisibility.Cloak", "InvisibilityCloak", "3.10.3.0")]
+    public class Plugin : BaseUnityPlugin
     {
         internal static ConfigEntry<bool> InvisibilityCloak_enabled;
 
@@ -28,8 +28,8 @@ namespace InvisibilityCloak
         {
             Logger.LogInfo($"InvisibilityCloak has loaded, use console commands 'invisible_on' or 'invisible_off'");
 
-            ConsoleScreen.Processor.RegisterCommand("invisible_on", new Action(invisible_on));
-            ConsoleScreen.Processor.RegisterCommand("invisible_off", new Action(invisible_off));
+            ConsoleScreen.Processor.RegisterCommand("invisible_on", new Action(invisible_on),"");
+            ConsoleScreen.Processor.RegisterCommand("invisible_off", new Action(invisible_off),"");
 
             InvisibilityCloak_enabled = Config.Bind(
                 "",
@@ -103,39 +103,39 @@ namespace InvisibilityCloak
                 return true; // If mod is not enabled, then skip our function and execute original function instead of ours
             }
 
-            BotMemoryClass.Class896 class896 = new BotMemoryClass.Class896();
-            class896.botMemoryClass = __instance;
-            class896.enemy = enemy;
+            BotMemoryClass.Class978 Class978 = new BotMemoryClass.Class978();
+            Class978.botMemoryClass = __instance;
+            Class978.enemy = enemy;
 
-            if (class896.enemy.IsYourPlayer) // Do not add enemy if it is our player ;)
+            if (Class978.enemy.IsYourPlayer) // Do not add enemy if it is our player ;)
             {
                 return false; // Skip original
             }
-            if (class896.enemy.Id == ___botOwner_0.GetPlayer.Id)
+            if (Class978.enemy.Id == ___botOwner_0.GetPlayer.Id)
             {
                 return false; // Skip original
             }
             for (int i = 0; i < ___botOwner_0.BotsGroup.MembersCount; i++)
             {
-                if (___botOwner_0.BotsGroup.Member(i).GetPlayer.Id == class896.enemy.Id)
+                if (___botOwner_0.BotsGroup.Member(i).GetPlayer.Id == Class978.enemy.Id)
                 {
                     return false; // Skip original
                 }
             }
-            if (___botOwner_0.EnemiesController.EnemyInfos.ContainsKey(class896.enemy))
+            if (___botOwner_0.EnemiesController.EnemyInfos.ContainsKey(Class978.enemy))
             {
                 return false; // Skip original
             }
-            if (class896.enemy.Transform == null || !class896.enemy.HealthController.IsAlive)
+            if (Class978.enemy.Transform == null || !Class978.enemy.HealthController.IsAlive)
             {
                 return false; // Skip original
             }
-            global::EnemyInfo enemyInfo = ___botOwner_0.EnemiesController.AddNew(___botsGroup_0, class896.enemy, groupInfo);
-            ___botOwner_0.EnemiesController.SetInfo(class896.enemy, enemyInfo);
-            ___botOwner_0.BotRequestController.RemoveAllRequestByRequester(Singleton<GameWorld>.Instance.GetAlivePlayerByProfileID(class896.enemy.ProfileId));
-            class896.enemy.HealthController.DiedEvent += class896.method_0;
-            float sqrMagnitude = (___botOwner_0.Position - class896.enemy.Position).sqrMagnitude;
-            if (!onActivation && sqrMagnitude < 625f && !___botOwner_0.Memory.HaveEnemy && global::GClass301.CanShoot(___botOwner_0, enemyInfo))
+            global::EnemyInfo enemyInfo = ___botOwner_0.EnemiesController.AddNew(___botsGroup_0, Class978.enemy, groupInfo);
+            ___botOwner_0.EnemiesController.SetInfo(Class978.enemy, enemyInfo);
+            ___botOwner_0.BotRequestController.RemoveAllRequestByRequester(Singleton<GameWorld>.Instance.GetAlivePlayerByProfileID(Class978.enemy.ProfileId));
+            Class978.enemy.HealthController.DiedEvent += Class978.method_0;
+            float sqrMagnitude = (___botOwner_0.Position - Class978.enemy.Position).sqrMagnitude;
+            if (!onActivation && sqrMagnitude < 625f && !___botOwner_0.Memory.HaveEnemy && global::GClass344.CanShoot(___botOwner_0, enemyInfo))
             {
                 enemyInfo.SetVisible(true);
                 ___botOwner_0.Memory.GoalEnemy = enemyInfo;
@@ -145,7 +145,7 @@ namespace InvisibilityCloak
             {
                 return false; // Skip original
             }
-            action(class896.enemy);
+            action(Class978.enemy);
 
             return false; // Skip original
         }
@@ -163,104 +163,26 @@ namespace InvisibilityCloak
         private static bool PatchPrefix(
             BotsGroup __instance,
             ref bool __result,
-            ref Dictionary<IPlayer, BotSettingsClass> __Enemies,
-            ref Dictionary<IPlayer, BotSettingsClass> __Neutrals,
-            ref BotGroupRequestController __RequestsController,
-            ref List<IPlayer> ___recheckPersonsAfterInit,
-            ref IBotGame __BotGame,
-            Action<IPlayer, EBotEnemyCause> __onEnemyAdd,
-            WildSpawnType ___defWildSpawnType,
-            List<BotOwner> ___members,
-            BotOwner ___initialBot,
-            bool ___isFirstMemberAdded,
-            IPlayer enemy,
+            IPlayer person, 
             EBotEnemyCause cause
         )
         {
             if (!Plugin.InvisibilityCloak_enabled.Value)
             {
-                return true; // If mod is not enabled, then skip our function and execute original function instead of ours
+                return true; 
             }
 
-            if (enemy.IsYourPlayer) // Do not add enemy if it is our player ;)
+            if (person.IsYourPlayer)
             {
                 __result = false;
-                return false; // Skip original
+                return false; 
             }
-
-            if (!___isFirstMemberAdded)
-            {
-                ___recheckPersonsAfterInit.Add(enemy);
-                __result = false;
-                return false; // Skip original
-            }
-
-            using (List<BotOwner>.Enumerator enumerator = ___members.GetEnumerator())
-            {
-                while (enumerator.MoveNext())
-                {
-                    if (enumerator.Current.GetPlayer.Id == enemy.Id)
-                    {
-                        __result = false;
-                        return false; // Skip original
-                    }
-                }
-            }
-            if (___initialBot.Settings.FileSettings.Mind.USE_ADD_TO_ENEMY_VALIDATION && !global::System.Linq.Enumerable.Contains<global::EBotEnemyCause>(___initialBot.Settings.FileSettings.Mind.VALID_REASONS_TO_ADD_ENEMY, cause))
-            {
-                __result = false;
-                return false; // Skip original
-            }
-            global::BotSettingsClass botSettingsClass;
-            if (!__Enemies.TryGetValue(enemy, out botSettingsClass))
-            {
-                if (enemy.IsAI && __instance.HaveMemberWithRole(global::EFT.WildSpawnType.gifter))
-                {
-                    __result = false;
-                    return false; // Skip original
-                }
-                bool flag = true;
-                global::EFT.WildSpawnType defWildSpawnType = ___defWildSpawnType;
-                if (defWildSpawnType > global::EFT.WildSpawnType.assault && defWildSpawnType != global::EFT.WildSpawnType.assaultGroup && defWildSpawnType - global::EFT.WildSpawnType.bossZryachiy <= 1 && ___members.Count > 0)
-                {
-                    foreach (global::EFT.BotOwner botOwner in ___members)
-                    {
-                        global::GClass377 gclass;
-                        if (botOwner.IsRole(global::EFT.WildSpawnType.bossZryachiy) && (gclass = (botOwner.Boss.BossLogic as global::GClass377)) != null && !gclass.IsEnemyNow(enemy))
-                        {
-                            flag = false;
-                            break;
-                        }
-                    }
-                }
-                if (!flag)
-                {
-                    __instance.AddNeutral(enemy);
-                    __result = false;
-                    return false; // Skip original
-                }
-                enemy.AIData.CalcPower();
-                botSettingsClass = new global::BotSettingsClass(global::Comfort.Common.Singleton<global::EFT.GameWorld>.Instance.GetAlivePlayerByProfileID(enemy.ProfileId), __instance, cause);
-                __Enemies.Add(enemy, botSettingsClass);
-                global::System.Action<global::EFT.IPlayer, global::EBotEnemyCause> onEnemyAdd = __onEnemyAdd;
-                if (__onEnemyAdd != null)
-                {
-                    __onEnemyAdd(enemy, cause);
-                }
-                __RequestsController.RemoveAllRequestByRequester(global::Comfort.Common.Singleton<global::EFT.GameWorld>.Instance.GetAlivePlayerByProfileID(enemy.ProfileId));
-                __Neutrals.Remove(enemy);
-                __instance.Allies.Remove(enemy);
-            }
-            __BotGame.BotsController.Bots.GetConnector().Remove(enemy);
-            foreach (global::EFT.BotOwner botOwner2 in ___members)
-            {
-                botOwner2.Memory.AddEnemy(enemy, botSettingsClass, false);
-            }
-            __instance.method_16();
 
             __result = true;
-            return false; // Skip original
+            return false;
         }
+
+
     }
 
     internal class EnemyInfo_CheckVisibility_Patch : ModulePatch
