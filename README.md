@@ -5,7 +5,7 @@
 #### Download SPT.InvisibilityCloak sourcecode:
 <a href="https://github.com/JollyFrogs/SPT.InvisibilityCloak/archive/refs/heads/main.zip">SPT.InvisibilityCloak-main.zip</a>
 
-#### Download Visual Studio 2024 Community Edition and .Net Framework 4.8.1:
+#### Download Visual Studio 2022 Community Edition and .Net Framework 4.8.1:
 
 ```
 winget install --id Microsoft.VisualStudio.2022.Community --exact --silent --custom "--add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.ManagedDesktop" --accept-source-agreements --accept-package-agreements --disable-interactivity
